@@ -2,6 +2,8 @@
 
 <robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <xacro:include filename="$(find my_robot)/urdf/my_robot.gazebo" />
+
   <link name="robot_footprint"></link>
 
   <joint name="robot_footprint_joint" type="fixed">
@@ -110,6 +112,10 @@
      <dynamics damping="1.0" friction="1.0"/>
    </joint>
 
+   <gazebo reference="left_wheel">
+      <material>Gazebo/Black</material>
+   </gazebo>
+
 
 
 
@@ -151,6 +157,20 @@
      <dynamics damping="1.0" friction="1.0"/>
    </joint>
 
+   <gazebo reference="right_wheel">
+      <material>Gazebo/Black</material>
+   </gazebo>
+
+
+
+
+
+
+
+
+
+
+
 
    <!-- camera -->
    <link name="camera">
@@ -189,7 +209,9 @@
    	<axis xyz="0 1 0" rpy="0 0 0"/>
    </joint>
    
-
+   <gazebo reference="camera">
+      <material>Gazebo/Black</material>
+   </gazebo>
 
 
 
@@ -228,5 +250,9 @@
    	<parent link="chassis"/>
    	<axis xyz="0 1 0" rpy="0 0 0"/>
    </joint>
+
+   <gazebo reference="hokuyo">
+      <material>Gazebo/Black</material>
+   </gazebo>
 
 </robot>
