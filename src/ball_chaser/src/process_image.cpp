@@ -30,22 +30,39 @@ void process_image_callback(const sensor_msgs::Image img)
     // Depending on the white ball position, call the drive_bot function and pass velocities to it
     // Request a stop when there's no white ball seen by the camera
 
-    // for(int i=0; i<img.height * img.step; i++)
-    // {
-    //     if(img.data[i] == 255)
+    for(int i=0; i<img.height * img.step; i+=3)
+    {
+        int r = (int)img.data[i];   // untested 
+        int g = (int)img.data[i+1]; // untested
+        int b = (int)img.data[i+2]; // untested
+    }
 
-    // }
+    /*
+        Image Coordinates:
+
+        ----- +x
+        |
+        |
+        +y
+
+    */
 
 
     //ROS_INFO("---------");
     //ROS_INFO_STREAM(typeid(img.data).name());     // St6vectorIhSaIhEE (aka: vector<unsigned char>)
-    //ROS_INFO_STREAM(typeid(img.data[0]).name());  // h (aka: unsigned char)
+    //ROS_INFO_STREAM(typeid(img.data[0]).name());  // h (aka: unsigned char, so cast to int before comparison with 'white_pixel')
     //ROS_INFO_STREAM(img.data.size());             // 1920000
     //ROS_INFO_STREAM(img.height);                  // 800
     //ROS_INFO_STREAM(img.width);                   // 800
     //ROS_INFO_STREAM(img.step);                    // 2400
     //ROS_INFO_STREAM((int)img.data[1919998]);      // 155 (when white ball is NOT in bottom right corner of image)
     //ROS_INFO_STREAM((int)img.data[1919998]);      // 255 (when white ball IS in bottom right corner of image)
+    
+    // // when the blue ball covers the top left pixel:
+    // ROS_INFO_STREAM((int)img.data[0]);           // 0   (red)
+    // ROS_INFO_STREAM((int)img.data[1]);           // 0   (blue)
+    // ROS_INFO_STREAM((int)img.data[2]);           // 255 (green)
+    
     //ROS_INFO("---------");
 
 }
