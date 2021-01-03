@@ -24,18 +24,60 @@ void process_image_callback(const sensor_msgs::Image img)
 {
 
     int white_pixel = 255;
+    int rows = img.height; // 800
+    int cols = img.step; // 2400
+    int n = rows * cols;
+
+    int num_white_pixels_found = 0;
+    int j_bar_sum = 0;
+    int j_bar = 0;
+
 
     // TODO: Loop through each pixel in the image and check if there's a bright white one
     // Then, identify if this pixel falls in the left, mid, or right side of the image
     // Depending on the white ball position, call the drive_bot function and pass velocities to it
     // Request a stop when there's no white ball seen by the camera
 
-    for(int i=0; i<img.height * img.step; i+=3)
+    for(int i=0; i<rows; i++) // 800 rows  
     {
-        int r = (int)img.data[i];   // untested 
-        int g = (int)img.data[i+1]; // untested
-        int b = (int)img.data[i+2]; // untested
+        for(int j=0; j<cols; j+=3) // 2400 columns, by 3's (800 effective collumns)
+        {
+            int index = (i * cols) + j;
+            if(index + 2 >= n)
+            {
+                ROS_INFO_STREAM("OUT OF BOUNDS!!!!!!!!!!!!!!!!!!!!!!");
+                ROS_INFO_STREAM(index);
+                return;
+            }
+
+            int r = (int)img.data[index];   // untested (indexing is wrong...)
+            int g = (int)img.data[index+1]; // untested
+            int b = (int)img.data[index+2]; // untested
+
+            if(r == 255 and g == 255 and b == 255)
+            {
+                // save j_bar to find horizontal centroid of the white ball
+                j_bar_sum += j;
+                ++num_white_pixels_found;
+            }
+        }    
     }
+
+    // calculate j_bar
+    if(j_bar_sum <= 0 or num_white_pixels_found <= 0)
+    {
+        j_bar = -1; // null value for area centroid (white ball was NOT in image frame)
+    }
+    else
+    {
+        j_bar = j_bar_sum / num_white_pixels_found; // area centroid (white ball was found in image frame)
+    }
+
+    ROS_INFO_STREAM(j_bar_sum);
+    ROS_INFO_STREAM(num_white_pixels_found);
+    ROS_INFO_STREAM(j_bar);
+    //ROS_INFO_STREAM("j_bar: " << std::to_string(j_bar));
+    ROS_INFO_STREAM("---");
 
     /*
         Image Coordinates:
@@ -63,7 +105,7 @@ void process_image_callback(const sensor_msgs::Image img)
     // ROS_INFO_STREAM((int)img.data[1]);           // 0   (blue)
     // ROS_INFO_STREAM((int)img.data[2]);           // 255 (green)
     
-    //ROS_INFO("---------");
+    //S_INFO("---------");
 
 }
 
