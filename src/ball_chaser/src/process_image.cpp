@@ -25,12 +25,16 @@ void process_image_callback(const sensor_msgs::Image img)
 
     int white_pixel = 255;
     int rows = img.height; // 800
-    int cols = img.step; // 2400
-    int n = rows * cols;
+    int cols = img.step;   // 2400
+    int n = rows * cols;   // 1920000
 
     int num_white_pixels_found = 0;
-    int j_bar_sum = 0;
-    int j_bar = 0;
+    int x_bar_sum = 0;
+    int x_bar = -1;
+    float m = -2.0 / (float)cols;
+
+    float lin_x = 0;
+    float ang_z = 0;
 
 
     // TODO: Loop through each pixel in the image and check if there's a bright white one
@@ -56,28 +60,34 @@ void process_image_callback(const sensor_msgs::Image img)
 
             if(r == 255 and g == 255 and b == 255)
             {
-                // save j_bar to find horizontal centroid of the white ball
-                j_bar_sum += j;
+                // save x_bar to find horizontal centroid of the white ball
+                x_bar_sum += j;
                 ++num_white_pixels_found;
             }
         }    
     }
 
-    // calculate j_bar
-    if(j_bar_sum <= 0 or num_white_pixels_found <= 0)
+    // calculate x_bar
+    if(x_bar_sum <= 0 or num_white_pixels_found <= 0)
     {
-        j_bar = -1; // null value for area centroid (white ball was NOT in image frame)
+        x_bar = -1;  // null value for area centroid (white ball was NOT in image frame)
+        lin_x = 0.0; // halt forward movement
+        ang_z = 0.0; // halt rotational movement
     }
     else
     {
-        j_bar = j_bar_sum / num_white_pixels_found; // area centroid (white ball was found in image frame)
+        x_bar = x_bar_sum / num_white_pixels_found; // area centroid (white ball was found in image frame)
+        // transform from [0, 2400] to [1, -1]: ang_z = (-2.0 / 2400.0) * x_bar + 1.0
+        lin_x = 0.1;
+        ang_z = m * (float)x_bar + 1.0;
     }
 
-    ROS_INFO_STREAM(j_bar_sum);
-    ROS_INFO_STREAM(num_white_pixels_found);
-    ROS_INFO_STREAM(j_bar);
-    //ROS_INFO_STREAM("j_bar: " << std::to_string(j_bar));
+    ROS_INFO_STREAM(lin_x);
+    ROS_INFO_STREAM(ang_z);
     ROS_INFO_STREAM("---");
+
+    
+
 
     /*
         Image Coordinates:
