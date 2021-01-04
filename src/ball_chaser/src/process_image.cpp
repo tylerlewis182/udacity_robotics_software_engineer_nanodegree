@@ -11,13 +11,19 @@ ros::ServiceClient client;
 void drive_robot(float lin_x, float ang_z)
 {
     // TODO: Request a service and pass the velocities to it to drive the robot
+    ball_chaser::DriveToTarget srv;
 
+    srv.request.linear_x = lin_x;
+    srv.request.angular_z = ang_z;
 
-
-
-
-
+    if(!client.call(srv))
+    {
+        ROS_ERROR("ERROR! Could not call the DriveToTarget service from within the 'drive_robot' function in ball_chaser package, 'process_image.cpp' file.");
+    }
 }
+
+
+
 
 // This callback function continuously executes and reads the image data
 void process_image_callback(const sensor_msgs::Image img)
@@ -47,10 +53,9 @@ void process_image_callback(const sensor_msgs::Image img)
         for(int j=0; j<cols; j+=3) // 2400 columns, by 3's (800 effective collumns)
         {
             int index = (i * cols) + j;
-            if(index + 2 >= n)
+            if(index < 0 or index + 2 >= n)
             {
-                ROS_INFO_STREAM("OUT OF BOUNDS!!!!!!!!!!!!!!!!!!!!!!");
-                ROS_INFO_STREAM(index);
+                ROS_ERROR("ERROR! Index out of rangefrom within the 'drive_robot' function in ball_chaser package, 'process_image.cpp' file.");
                 return;
             }
 
@@ -78,13 +83,16 @@ void process_image_callback(const sensor_msgs::Image img)
     {
         x_bar = x_bar_sum / num_white_pixels_found; // area centroid (white ball was found in image frame)
         // transform from [0, 2400] to [1, -1]: ang_z = (-2.0 / 2400.0) * x_bar + 1.0
-        lin_x = 0.1;
+        lin_x = 0.3;
         ang_z = m * (float)x_bar + 1.0;
     }
 
-    ROS_INFO_STREAM(lin_x);
-    ROS_INFO_STREAM(ang_z);
-    ROS_INFO_STREAM("---");
+    drive_robot(lin_x, ang_z);
+
+
+    // ROS_INFO_STREAM(lin_x);
+    // ROS_INFO_STREAM(ang_z);
+    // ROS_INFO_STREAM("---");
 
     
 
